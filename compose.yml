@@ -4,7 +4,7 @@ services:
     build: 
       context: .
       dockerfile: dockerfile
-    # Let Coolify's proxy handle the external traffic
+    privileged: true
     volumes:
       - xui_data:/home/xui
       - mysql_data:/var/lib/mysql
