@@ -1,12 +1,9 @@
 FROM ubuntu:24.04
 WORKDIR /
 
-# Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 1. Install standard dependencies + all identified missing libraries
-# 2. Download/Install libssl1.1 (Required by XUI)
-# 3. Create the 'xui' user
+# Install all libraries identified in previous steps
 RUN apt-get update && \
     apt-get install -y sudo wget unzip dos2unix python-is-python3 python3-dev mariadb-server curl \
     libxml2 libxslt1.1 libmcrypt4 libmaxminddb0 libssh2-1 && \
@@ -16,16 +13,16 @@ RUN apt-get update && \
     useradd -m -s /bin/bash xui && \
     apt-get clean
 
-# Copy original xui.one files
 COPY original_xui/database.sql /database.sql
 COPY original_xui/xui.tar.gz /xui.tar.gz
 COPY install.python3.py /install.python3.py
 
-# Create a wrapper script
+# Enhanced wrapper script to fix Nginx paths and permissions
 RUN echo '#!/bin/bash\n\
     service mariadb start\n\
     if [ -f "/home/xui/status" ]; then\n\
         echo "XUI already installed, starting service..."\n\
+        mkdir -p /home/xui/logs /home/xui/bin/nginx/logs\n\
         chown -R xui:xui /home/xui\n\
         /home/xui/service start\n\
     else\n\
