@@ -4,7 +4,7 @@ services:
     build: 
       context: .
       dockerfile: dockerfile
-    # Ports removed to let Coolify's Proxy (Traefik) handle it via port 80
+    # Let Coolify's proxy handle the external traffic
     volumes:
       - xui_data:/home/xui
       - mysql_data:/var/lib/mysql
