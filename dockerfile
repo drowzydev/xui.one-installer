@@ -4,12 +4,15 @@ WORKDIR /
 # Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies + download/install libssl1.1 manually
+# 1. Install dependencies
+# 2. Download/Install libssl1.1 (Required by XUI)
+# 3. Create the 'xui' user that the service binary expects
 RUN apt-get update && \
-    apt-get install -y sudo wget unzip dos2unix python-is-python3 python3-dev mariadb-server curl && \
+    apt-get install -y sudo wget unzip dos2unix python-is-python3 python3-dev mariadb-server curl libxml2 && \
     wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
     dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb || apt-get install -y -f && \
     rm libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    useradd -m -s /bin/bash xui && \
     apt-get clean
 
 # Copy original xui.one files
@@ -22,6 +25,8 @@ RUN echo '#!/bin/bash\n\
     service mariadb start\n\
     if [ -f "/home/xui/status" ]; then\n\
         echo "XUI already installed, starting service..."\n\
+        # Ensure permissions are correct for the xui user\n\
+        chown -R xui:xui /home/xui\n\
         /home/xui/service start\n\
     else\n\
         echo "Starting fresh installation..."\n\
