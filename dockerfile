@@ -17,11 +17,12 @@ COPY original_xui/database.sql /database.sql
 COPY original_xui/xui.tar.gz /xui.tar.gz
 COPY install.python3.py /install.python3.py
 
-# Enhanced wrapper script to fix Nginx paths and permissions
+# Enhanced wrapper script to fix Nginx and check directories
 RUN echo '#!/bin/bash\n\
     service mariadb start\n\
     if [ -f "/home/xui/status" ]; then\n\
         echo "XUI already installed, starting service..."\n\
+        # Fix potential directory issues\n\
         mkdir -p /home/xui/logs /home/xui/bin/nginx/logs\n\
         chown -R xui:xui /home/xui\n\
         /home/xui/service start\n\
